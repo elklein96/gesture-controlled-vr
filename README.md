@@ -12,7 +12,7 @@
 ```
 cd echo-server
 npm install
-npm run start
+npm start
 ```
 - Setting Up the Unity Project
     - Open the `Virtual Office.sln` in the Unity editor
