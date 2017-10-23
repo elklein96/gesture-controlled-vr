@@ -8,9 +8,15 @@
 - The `Virtual Office` directory contains a Unity scene which subscribes to a websocket server and logs any received messages.
 
 ## Building the Project
-- Setting up the `echo-server`
+- Setting up the `echo-server` app
 ```
 cd echo-server
+npm install
+npm start
+```
+- Setting up the `mouse-capture` app
+```
+cd mouse-capture
 npm install
 npm start
 ```
@@ -19,19 +25,5 @@ npm start
     - Click the `Play` button in the top toolbar
 
 ## Running an Example
-- The `echo-server` project listens for `POST` requests received at `localhost:3000/ping` and repeats the value of the `payload` field to any subscribers of the websocket server found at `localhost:3001`
-- With both  projects running, send the following example request:
-```
-curl -X POST \
-  http://localhost:3000/ping \
-  -H 'content-type: application/json' \
-  -d '{
-	"payload": "(1, 2)"
-  }'
-```
-- Check that the Unity console displays the following output: 
-```
-Open
-connected
-(1, 2)
-```
+- With all three projects running, move your mouse around the window
+- Check that the Unity console displays coordinates corresponding to your mouse movements
