@@ -16,7 +16,10 @@ const connections = [];
 
 wss.on('connection', (ws) => {
   connections.push(ws);
+
   ws.on('message', notifySubscribers);
+  ws.onclose = removeSubscriber;
+
   ws.send('connected');
 });
 
@@ -35,4 +38,8 @@ function notifySubscribers(data) {
   connections.forEach((subscriber) => {
     subscriber.send(data);
   });
+}
+
+function removeSubscriber(socket) {
+  connections.splice(socket);
 }
