@@ -16,15 +16,12 @@ const connections = [];
 
 wss.on('connection', (ws) => {
   connections.push(ws);
+  ws.on('message', notifySubscribers);
   ws.send('connected');
 });
 
 app.post('/ping', (req, res, next) => {
-  const payload = req.body.payload;
-  
-  connections.forEach((subscriber) => {
-    subscriber.send(payload);
-  });
+  notifySubscribers(req.body.payload);
 
   res.send({ data: payload });
   return next();
@@ -33,3 +30,9 @@ app.post('/ping', (req, res, next) => {
 http.createServer(app).listen(app.get('port'), () => {
   console.log(`Express server listening on port ${app.get('port')}`);
 });
+
+function notifySubscribers(data) {
+  connections.forEach((subscriber) => {
+    subscriber.send(data);
+  });
+}

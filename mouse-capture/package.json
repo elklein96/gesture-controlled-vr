@@ -1,0 +1,13 @@
+{
+  "name": "mouse-capture",
+  "version": "0.0.1",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "elklein96",
+  "devDependencies": {
+    "electron": "~1.4.1"
+  }
+}

@@ -1,0 +1,70 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <style>
+        body {
+            margin: 0px;
+            padding: 0px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="1024" height="800"></canvas>
+    <script>
+        var canvas = document.getElementById('canvas');
+        var websocket;
+
+        window.addEventListener('load', initSocket, false);
+
+        canvas.addEventListener('mousemove', function (evt) {
+            var mousePos = getMousePos(canvas, evt);
+            var message = '(' + mousePos.x + ', ' + mousePos.y + ')';
+            writeMessage(canvas, message);
+            websocket.send(message);
+        }, false);
+
+        function writeMessage(canvas, message) {
+            var context = canvas.getContext('2d');
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.font = '18pt Calibri';
+            context.fillStyle = 'black';
+            context.fillText(message, 10, 25);
+        }
+
+        function getMousePos(canvas, evt) {
+            var rect = canvas.getBoundingClientRect();
+            return {
+                x: evt.clientX - rect.left,
+                y: evt.clientY - rect.top
+            };
+        }
+
+        function initSocket() {
+            websocket = new WebSocket('ws://localhost:3001');
+            websocket.onopen = function(evt) { onOpen(evt) };
+            websocket.onclose = function(evt) { onClose(evt) };
+            websocket.onmessage = function(evt) { onMessage(evt) };
+            websocket.onerror = function(evt) { onError(evt) };
+        }
+
+        function onOpen(evt) {
+            console.log('Connected');
+        }
+
+        function onClose(evt) {
+            console.log('Disconnected');
+        }
+
+        function onMessage(evt) {
+            console.log('Response: ' + evt.data);
+        }
+
+        function onError(evt) {
+            console.log('Error: ' + evt.data);
+        }
+    </script>
+</body>
+</html>
