@@ -1,11 +1,11 @@
 {
   "name": "mouse-capture",
   "version": "0.0.1",
+  "description": "Simple echo server for a websocket",
   "main": "main.js",
   "scripts": {
     "start": "electron ."
   },
-  "keywords": [],
   "author": "elklein96",
   "devDependencies": {
     "electron": "~1.4.1"
