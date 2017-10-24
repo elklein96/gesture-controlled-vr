@@ -1,0 +1,4 @@
+sceneSetups:
+- path: Assets/VR_Scenes/office_standard.unity
+  isLoaded: 1
+  isActive: 1
