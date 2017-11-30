@@ -18,7 +18,7 @@ namespace GestureStream {
 			cube = GameObject.Find("Cube1");
 			coord = new Coordinate(0f, 0f);
 
-			ws = new WebSocket("ws://localhost:3001");
+			ws = new WebSocket("ws://18.220.146.229:3001");
 			ws.OnOpen += (o, e) => {
 				Debug.Log("Connected");
 			};

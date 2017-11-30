@@ -43,7 +43,7 @@
         }
 
         function initSocket() {
-            websocket = new WebSocket('ws://localhost:3001');
+            websocket = new WebSocket('ws://18.220.146.229:3001');
             websocket.onopen = function(evt) { onOpen(evt) };
             websocket.onclose = function(evt) { onClose(evt) };
             websocket.onmessage = function(evt) { onMessage(evt) };
