@@ -10,6 +10,8 @@ namespace GestureStream {
 		private GameObject cube;
 		private Coordinate coord;
 
+		private bool showCube = false;
+
 		void OnGUI() {
 			GUILayout.Label("Started");
 		}
@@ -24,17 +26,19 @@ namespace GestureStream {
 			};
 			ws.OnMessage += (sender, e) => {
 				Debug.Log(e.Data);
-				var results = Regex.Matches(e.Data, "\\((?<X>\\d+),\\s+(?<Y>\\d+)");
-				for (int i = 0; i < results.Count; i++) {
-					coord.setX((float) Convert.ToDouble(results[i].Groups["X"]));
-					coord.setY((float) Convert.ToDouble(results[i].Groups["Y"]));
-				}
+				showCube = String.Equals(e.Data, "1", StringComparison.Ordinal);
+				// var results = Regex.Matches(e.Data, "\\((?<X>\\d+),\\s+(?<Y>\\d+)");
+				// for (int i = 0; i < results.Count; i++) {
+				// 	coord.setX((float) Convert.ToDouble(results[i].Groups["X"]));
+				// 	coord.setY((float) Convert.ToDouble(results[i].Groups["Y"]));
+				// }
 			};
 			ws.Connect();
 		}
 
 		void Update () {
-			cube.transform.position += new Vector3(coord.getX(), coord.getY(), 0f);
+			cube.gameObject.GetComponent<Renderer>().enabled = showCube;
+			// cube.transform.position += new Vector3(coord.getX(), coord.getY(), 0f);
 		}
 
 		void OnApplicationQuit() {
