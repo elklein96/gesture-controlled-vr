@@ -34,5 +34,6 @@ npm start
     - Click the `Play` button in the top toolbar
 
 ## Running an Example
-- With all three projects running, move your mouse around the window
-- Check that the Unity console displays coordinates corresponding to your mouse movements
+- Run the `echo-server`, either the `mouse-capture` or `Camera Control` projects, and the Unity project
+- With all three projects running, move your mouse around the window or move around in front of the camera
+- Check that the Unity console displays coordinates corresponding to your movements
