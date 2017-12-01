@@ -24,7 +24,7 @@ npm install
 npm start
 ```
 - Setting up the `Camera Control` project
-    >> The [Boost C++ Libraries](http://www.boost.org/) and [Boost.Beast](https://github.com/boostorg/beast) are prerequisites for building this project
+    > The [Boost C++ Libraries](http://www.boost.org/) and [Boost.Beast](https://github.com/boostorg/beast) are prerequisites for building this project
     - Open Camera Control.xcodeproj in Xcode
     - Plug in the R200 camera
     - Run the project
