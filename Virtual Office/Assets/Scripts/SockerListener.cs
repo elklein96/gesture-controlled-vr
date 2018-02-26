@@ -10,8 +10,6 @@ namespace GestureStream {
 		private GameObject cube;
 		private Coordinate coord;
 
-		private bool showCube = false;
-
 		void OnGUI() {
 			GUILayout.Label("Started");
 		}
@@ -25,20 +23,17 @@ namespace GestureStream {
 				Debug.Log("Connected");
 			};
 			ws.OnMessage += (sender, e) => {
-				Debug.Log(e.Data);
-				showCube = String.Equals(e.Data, "1", StringComparison.Ordinal);
-				// var results = Regex.Matches(e.Data, "\\((?<X>\\d+),\\s+(?<Y>\\d+)");
-				// for (int i = 0; i < results.Count; i++) {
-				// 	coord.setX((float) Convert.ToDouble(results[i].Groups["X"]));
-				// 	coord.setY((float) Convert.ToDouble(results[i].Groups["Y"]));
-				// }
+				foreach (Match match in Regex.Matches(e.Data, "(?<X>\\d+.\\d+),\\s+(?<Y>\\d+.\\d+)")) {
+					// Scale the coordinates by a factor of 4 to see more pronounced movement by the Game Object
+					coord.setX((float) Convert.ToDouble(match.Groups["X"].Value) * 4);
+					coord.setY((float) Convert.ToDouble(match.Groups["Y"].Value) * 4);
+				}
 			};
 			ws.Connect();
 		}
 
 		void Update () {
-			cube.gameObject.GetComponent<Renderer>().enabled = showCube;
-			// cube.transform.position += new Vector3(coord.getX(), coord.getY(), 0f);
+			cube.gameObject.GetComponent<Renderer>().transform.position = new Vector3(coord.getX(), coord.getY(), 0f);
 		}
 
 		void OnApplicationQuit() {
