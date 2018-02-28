@@ -50,7 +50,6 @@ int main() try
     printf("There are %d connected RealSense devices.\n", ctx.get_device_count());
     if(ctx.get_device_count() == 0) return EXIT_FAILURE;
 
-    // This tutorial will access only a single device, but it is trivial to extend to multiple devices
     rs::device * dev = ctx.get_device(0);
     printf("\nUsing device 0, an %s\n", dev->get_name());
     printf("    Serial number: %s\n", dev->get_serial());
@@ -115,14 +114,14 @@ int main() try
         float objectThreshold = (float)chars / (float)1561;
         
         if (objectThreshold > 0.2) {
-            printf("DEBUG:: send message %f\n", objectThreshold);
+//            printf("DEBUG:: send message %f\n", objectThreshold);
             ws.write(boost::asio::buffer(std::string("1")));
         } else {
             ws.write(boost::asio::buffer(std::string("0")));
         }
 
-//        *out++ = 0;
-//        printf("\n%s", buffer);
+        *out++ = 0;
+        printf("\n%s", buffer);
     }
 
     return EXIT_SUCCESS;

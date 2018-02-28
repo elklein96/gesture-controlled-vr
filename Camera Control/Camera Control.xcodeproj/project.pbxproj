@@ -136,6 +136,7 @@
 		DA15CF871FD0FED000321CF2 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 0920;
 				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = "Evan Klein";
 				TargetAttributes = {
@@ -316,6 +317,7 @@
 				DA15CF981FD0FED000321CF2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
