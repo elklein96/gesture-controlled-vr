@@ -23,11 +23,29 @@
 using tcp = boost::asio::ip::tcp;
 namespace websocket = boost::beast::websocket;
 
+auto const HOST = "18.220.146.229";
+auto const PORT = "3001";
+
 int f_shutdown;
 
 void shutdown_handler(int x)
 {
     f_shutdown = 1;
+}
+
+websocket::stream<tcp::socket> setup_socket()
+{
+	boost::asio::io_service ios;
+    websocket::stream<tcp::socket> ws{ios};
+
+    tcp::resolver resolver(ios);
+    tcp::resolver::query query(HOST, PORT);
+    auto const lookup = resolver.resolve(query);
+
+    boost::asio::connect(ws.next_layer(), lookup);
+    ws.handshake(HOST, "/");
+
+	return ws;
 }
 
 std::vector<std::vector<Pose>> LoadAnimBank(std::string filename, size_t pose_array_size)
@@ -77,26 +95,14 @@ template<class T> inline std::vector<T> & FlipY(std::vector<T> &image, int2 dim)
 
 int main(int argc, const char **argv) try
 {
+	// First, create a signal handler for graceful shutdowns
 	signal(SIGINT, shutdown_handler);
 	f_shutdown = 0;
 	
 	// Set up the HTTP Socket Client
-    auto const host = "18.220.146.229";
-    auto const port = "3001";
-    
-    boost::asio::io_service ios;
-    websocket::stream<tcp::socket> ws{ios};
-
-    tcp::resolver resolver(ios);
-    tcp::resolver::query query(host, port);
-    auto const lookup = resolver.resolve(query);
-
-    boost::asio::connect(ws.next_layer(), lookup);
-    ws.handshake(host, "/");
-    
+   	websocket::stream<tcp::socket> ws = setup_socket();
     ws.write(boost::asio::buffer(std::string("CAMERA:: CONNECTED")));
 	
-	std::cout << "testing the hand tracking system using synthetically generated depth data.\n";
 	std::string afilename = argc >= 2 ? argv[1] : "../assets/animbank.pose";
 
 	HandTracker htk;
@@ -129,17 +135,20 @@ int main(int argc, const char **argv) try
 		int k=0;
 		if(caption.length()) for(auto s:split(caption,"\n")) glwin.PrintString({ 0,k++ }, s.c_str());
 	};
-	glwin.keyboardfunc = [&](unsigned char key, int x, int y)->void
+	glwin.keyboardfunc = [&](int key, int, int)
 	{
 		switch (std::tolower(key))
 		{
-		case 'q': case 27:  exit(0); break;  // ESC
-		default:
-			std::cout << "unassigned key (" << (int)key << "): '" << key << "'" << std::endl;
-			break;
+			case 'q':
+			case 27:
+				ws.close(websocket::close_code::normal);
+				exit(0);
+				break;
+			default:
+				std::cerr << "unused key " << (char)key << std::endl;
+				break;
 		}
 	};
-
 	while (glwin.WindowUp())
 	{
 		if (f_shutdown)
