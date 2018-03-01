@@ -1,5 +1,4 @@
-Debug/
-Release/
+.DS_Store
 
 # Build results
 [Dd]ebug/
@@ -13,19 +12,10 @@ bld/
 tmp/
 datasets/
 
-.vs/
 ipch/
 *.sdf
 *.suo
 *.opendb
 *.opensdf
-*.VC.*
 *.psess
-*.VC.db
-*.VC.opendb
 *.user
-
-#NuGet
-packages
-!packages/repositories.config
-intermediate/
