@@ -154,6 +154,10 @@ public:
 
 	std::vector<uint16_t>            filtered_depth;
 	std::vector<uint16_t>            background;
+	void shutdown()
+	{
+		dev->stop();
+	}
 	void  addbackground(const unsigned short *dp,unsigned short fudge=3) 
 	{
 		background.resize(product(dim()),4096);
