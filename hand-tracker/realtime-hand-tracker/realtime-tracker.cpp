@@ -81,6 +81,7 @@ int main(int argc, char *argv[]) try
             std::cout << "SHUTTING DOWN GRACEFULLY..." << std::endl;
 			dcam.shutdown();
             ws.close(websocket::close_code::normal);
+			break;
         }
 
 		auto dimage = dcam.GetDepth();
