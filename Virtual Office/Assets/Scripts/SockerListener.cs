@@ -25,15 +25,15 @@ namespace GestureStream {
 			ws.OnMessage += (sender, e) => {
 				foreach (Match match in Regex.Matches(e.Data, "(?<X>\\d+.\\d+),\\s+(?<Y>\\d+.\\d+)")) {
 					// Scale the coordinates by a factor of 4 to see more pronounced movement by the Game Object
-					coord.setX((float) Convert.ToDouble(match.Groups["X"].Value) * 4);
-					coord.setY((float) Convert.ToDouble(match.Groups["Y"].Value) * 4);
+					coord.SetX((float) Convert.ToDouble(match.Groups["X"].Value) * 20);
+					coord.SetY((float) Convert.ToDouble(match.Groups["Y"].Value) * 20);
 				}
 			};
 			ws.Connect();
 		}
 
 		void Update () {
-			cube.gameObject.GetComponent<Renderer>().transform.position = new Vector3(coord.getX(), coord.getY(), 0f);
+			cube.gameObject.GetComponent<Renderer>().transform.position = new Vector3(coord.GetX(), coord.GetY(), 0f);
 		}
 
 		void OnApplicationQuit() {
@@ -51,19 +51,19 @@ namespace GestureStream {
 			this.y = y;
 		}
 
-		public float getX() {
+		public float GetX() {
 			return this.x;
 		}
 
-		public float getY() {
+		public float GetY() {
 			return this.y;
 		}
 
-		public void setX(float x) {
+		public void SetX(float x) {
 			this.x = x;
 		}
 
-		public void setY(float y) {
+		public void SetY(float y) {
 			this.y = y;
 		}
 	}
