@@ -14,8 +14,8 @@ let mainWindow
 function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1024, 
-    height: 800,
+    width: 775, 
+    height: 550,
     icon: __dirname + '/icon.png'
   })
 

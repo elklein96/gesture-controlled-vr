@@ -2,34 +2,132 @@
 
 <head>
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
     <style>
         body {
-            margin: 0px;
+            font-family: Arial;
+            margin: 5px;
             padding: 0px;
+        }
+        canvas {
+            border: solid 1px;
+            border-color: black;
+            cursor: pointer;
+        }
+        .side-nav {
+            border: solid 1px;
+            border-color: black;
+            display: inline-block;
+            width: 250px;
+            height: 500px;
+        }
+        .side-nav > ul {
+            display: table;
+            list-style-type: none;
+        }
+        .side-nav > ul > li {
+            background-color: #ccc;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            padding: 15px;
+            text-align: right;
+        }
+        .side-nav > ul > li > p,
+        .side-nav > ul > li > button {
+            display: inline;
         }
     </style>
 </head>
 <body>
-    <canvas id="canvas" width="1024" height="800"></canvas>
+    <div class="side-nav">
+        <ul>
+            <li>
+                <p>Thumb</p>
+                <input id="thumb-toggle" type="checkbox"/>
+            </li>
+            <li>
+                <p>Index Finger</p>
+                <input id="index-finger-toggle" type="checkbox"/>
+            </li>
+            <li>
+                <p>Second Finger</p>
+                <input id="second-finger-toggle" type="checkbox"/>
+            </li>
+            <li>
+                <p>Third Finger</p>
+                <input id="third-finger-toggle" type="checkbox"/>
+            </li>
+            <li>
+                <p>Pinky Finger</p>
+                <input id="pinky-finger-toggle" type="checkbox"/>
+            </li>
+        </ul>
+    </div>
+    <canvas id="canvas" width="500" height="500"></canvas>
     <script>
         var canvas = document.getElementById('canvas');
+        var fingerToggles = [
+            { name: 'thumb', id: '#thumb-toggle' },
+            { name: 'index', id: '#index-finger-toggle' },
+            { name: 'second', id: '#second-finger-toggle' },
+            { name: 'third', id: '#third-finger-toggle' },
+            { name: 'pinky', id: '#pinky-finger-toggle' }
+        ];
+        var dragFlag = false;
         var websocket;
 
         window.addEventListener('load', initSocket, false);
 
         canvas.addEventListener('mousemove', function (evt) {
+            if (dragFlag) {
+                var mousePos = getMousePos(canvas, evt);
+                var message = 'Drag: (' + mousePos.x + ', ' + mousePos.y + ')';
+                writeMessage(canvas, message);
+
+                var message = {
+                    x: mousePos.x,
+                    y: mousePos.y,
+                    fingers: [],
+                    click: false
+                };
+
+                message.fingers = fingerToggles.reduce(function(acc, val) {
+                    if (document.querySelector(val.id).checked) {
+                        acc.push(val.name);
+                    }
+                    return acc;
+                }, []);
+
+                websocket.send(JSON.stringify(message));
+            }
+        }, false);
+
+        canvas.addEventListener('mousedown', function() {
+            dragFlag = true;
+        }, false);
+
+        canvas.addEventListener('mouseup', function() {
+            dragFlag = false;
+        }, false);
+
+        canvas.addEventListener('click', function(evt) {
             var mousePos = getMousePos(canvas, evt);
-            var message = '(' + mousePos.x + ', ' + mousePos.y + ')';
+            var message = 'Click: (' + mousePos.x + ', ' + mousePos.y + ')';
             writeMessage(canvas, message);
-            websocket.send(message);
+
+            var message = {
+                x: mousePos.x,
+                y: mousePos.y,
+                fingers: [],
+                click: true
+            };
+
+            websocket.send(JSON.stringify(message));
         }, false);
 
         function writeMessage(canvas, message) {
             var context = canvas.getContext('2d');
             context.clearRect(0, 0, canvas.width, canvas.height);
-            context.font = '18pt Calibri';
+            context.font = '14pt Arial';
             context.fillStyle = 'black';
             context.fillText(message, 10, 25);
         }
