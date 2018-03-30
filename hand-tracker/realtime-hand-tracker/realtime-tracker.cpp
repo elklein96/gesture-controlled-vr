@@ -4,6 +4,8 @@
 #include <boost/beast/websocket.hpp>
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 #include "../third_party/geometric.h"
 #include "../third_party/mesh.h"
@@ -15,6 +17,7 @@
 
 using tcp = boost::asio::ip::tcp;
 namespace websocket = boost::beast::websocket;
+namespace pt = boost::property_tree;
 
 auto const HOST = "18.220.146.229";
 auto const PORT = "3001";
@@ -45,6 +48,17 @@ int main(int argc, char *argv[]) try
 {
 	RSCam dcam;
 	HandTracker htk;
+
+	std::string const boneNames[] = {
+		"wrist", "palm",
+		"thumb_1", "thumb_2", "thumb_3",
+		"index_1", "index_2", "index_3",
+		"middle_1", "middle_2", "middle_3",
+		"third_1", "third_2", "third_3",
+		"pinky_1", "pinky_2", "pinky_3", 
+	};
+
+	bool sendMeshDataFlag = false;
 
 	// First, create a signal handler for graceful shutdowns
 	signal(SIGINT, shutdown_handler);
@@ -100,7 +114,39 @@ int main(int argc, char *argv[]) try
 		{
 			auto allmeshes = Addresses(htk.handmodel.sdmeshes);
 			allmeshes.push_back(&dxmesh);
+			
+			pt::ptree fingers;
+
+			if (sendMeshDataFlag) {
+				std::vector<Pose> pose = htk.handmodel.GetPose();
+				pt::ptree coord;
+				for (int i = 0; i < pose.size(); i++) {
+					coord.put("x", pose[i].position.x);
+					coord.put("y", pose[i].position.y);
+					coord.put("z", pose[i].position.z);
+					fingers.add_child(boneNames[i], coord);
+				}
+			} else {
+				fingers.put("thumb", std::to_string(htk.handmodel.ThumbRaised()));
+				fingers.put("index", std::to_string(htk.handmodel.IndexFingerRaised()));
+				fingers.put("second", std::to_string(htk.handmodel.MiddleFingerRaised()));
+				fingers.put("third", std::to_string(htk.handmodel.ThirdFingerRaised()));
+				fingers.put("pinky", std::to_string(htk.handmodel.PinkyFingerRaised()));
+			}
+			pt::ptree message;
+  			message.put("x", std::to_string(htk.handmodel.GetPalmLocation().x));
+			message.put("y", std::to_string(htk.handmodel.GetPalmLocation().y));
+			message.put("z", std::to_string(htk.handmodel.GetPalmLocation().z));
+			message.add_child("fingers", fingers);
+			message.put("click", false);
+			std::ostringstream buf; 
+			pt::write_json(buf, message, false);
+			std::string json = buf.str();
+
+			std::cout << json << std::endl;
+			ws.write(boost::asio::buffer(json));
 			ws.write(boost::asio::buffer(std::to_string(htk.handmodel.GetPalmLocation().x) + ", " + std::to_string(htk.handmodel.GetPalmLocation().y)));
+			
 			render_scene({ { 0, 0, -0.05f }, normalize(float4(1, 0, 0, 0)) }, allmeshes);  
 		}
 		glPopAttrib();
