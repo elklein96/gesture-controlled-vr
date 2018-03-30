@@ -86,16 +86,13 @@
                 var message = {
                     x: mousePos.x,
                     y: mousePos.y,
-                    fingers: [],
+                    fingers: {},
                     click: false
                 };
 
-                message.fingers = fingerToggles.reduce(function(acc, val) {
-                    if (document.querySelector(val.id).checked) {
-                        acc.push(val.name);
-                    }
-                    return acc;
-                }, []);
+                fingerToggles.forEach(function(val) {
+                    message.fingers[val.name] = document.querySelector(val.id).checked;
+                });
 
                 websocket.send(JSON.stringify(message));
             }

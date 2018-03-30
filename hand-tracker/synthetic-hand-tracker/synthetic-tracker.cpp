@@ -9,6 +9,8 @@
 #include <boost/beast/websocket.hpp>
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 #include "../third_party/geometric.h"
 #include "../third_party/mesh.h"
@@ -21,6 +23,8 @@
 #include "../include/handtrack.h"
 
 using tcp = boost::asio::ip::tcp;
+namespace pt = boost::property_tree;
+
 namespace websocket = boost::beast::websocket;
 
 auto const HOST = "18.220.146.229";
@@ -98,6 +102,15 @@ int main(int argc, const char **argv) try
 	// First, create a signal handler for graceful shutdowns
 	signal(SIGINT, shutdown_handler);
 	f_shutdown = 0;
+
+	std::string const boneNames[] = {
+		"wrist", "palm",
+		"thumb_1", "thumb_2", "thumb_3",
+		"index_1", "index_2", "index_3",
+		"middle_1", "middle_2", "middle_3",
+		"third_1", "third_2", "third_3",
+		"pinky_1", "pinky_2", "pinky_3", 
+	};
 	
 	// Set up the HTTP Socket Client
    	websocket::stream<tcp::socket> ws = setup_socket();
@@ -120,6 +133,7 @@ int main(int argc, const char **argv) try
 
 	GLWin glwin("synthetic-hand-tracker   demonstrating hand pose estimation with synthetically generated depth data", 320+320+100*2+4, 900);  // should fit 1080 allowing window's borders, taskbar 
 
+	bool   sendMeshDataFlag = false;
 	bool   software_rasterizer = false ;   // for troubleshooting if opengl depth readback is ever an issue 
 	int    animate   = 1;
 	float  viewdist  = 0.40f;  // distance opengl viewpoint away from area of focus   use mousewheel to zoom in and out
@@ -155,8 +169,9 @@ int main(int argc, const char **argv) try
         {
             std::cout << "SHUTTING DOWN GRACEFULLY..." << std::endl;
             ws.close(websocket::close_code::normal);
+			break;
         }
-		
+
 		fakehand.SetPose(animbank[frameid%animbank.size()]);        // assign the pose of our fake hand to the next animation frame
 		if(glwin.MouseState && glwin.mousepos.y<glwin.res.y-70)     // leave a bit of space for widgets at the bottom of the window
 			yaw += (glwin.mousepos - glwin.mousepos_previous).x ;   // yaw and viewdist used for opengl viewing only, not to be confused with the synthetic depth camera 
@@ -219,7 +234,36 @@ int main(int argc, const char **argv) try
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			render_scene scene(glcamera, Addresses(htk.handmodel.GetMeshes(true)), {}, ColorVerts(Transform(PointCloud(segment, { 0.2f,htk.drangey } ), [&](float3 v) {return segment.cam.pose*v;}), float3(0, 1, 1)));
 
-			ws.write(boost::asio::buffer(std::to_string(htk.handmodel.getPalmLocation().x) + ", " + std::to_string(htk.handmodel.getPalmLocation().y)));
+			pt::ptree fingers;
+
+			if (sendMeshDataFlag) {
+				std::vector<Pose> pose = htk.handmodel.GetPose();
+				pt::ptree coord;
+				for (int i = 0; i < pose.size(); i++) {
+					coord.put("x", pose[i].position.x);
+					coord.put("y", pose[i].position.y);
+					coord.put("z", pose[i].position.z);
+					fingers.add_child(boneNames[i], coord);
+				}
+			} else {
+				fingers.put("thumb", std::to_string(htk.handmodel.ThumbRaised()));
+				fingers.put("index", std::to_string(htk.handmodel.IndexFingerRaised()));
+				fingers.put("second", std::to_string(htk.handmodel.MiddleFingerRaised()));
+				fingers.put("third", std::to_string(htk.handmodel.ThirdFingerRaised()));
+				fingers.put("pinky", std::to_string(htk.handmodel.PinkyFingerRaised()));
+			}
+			pt::ptree message;
+  			message.put("x", std::to_string(htk.handmodel.GetPalmLocation().x));
+			message.put("y", std::to_string(htk.handmodel.GetPalmLocation().y));
+			message.put("z", std::to_string(htk.handmodel.GetPalmLocation().z));
+			message.add_child("fingers", fingers);
+			message.put("click", false);
+			std::ostringstream buf; 
+			pt::write_json(buf, message, false);
+			std::string json = buf.str();
+
+			std::cout << json << std::endl;
+			ws.write(boost::asio::buffer(json));
 
 			glLineWidth(2.0f);
 			glColor3fv({ 0.50f, 0.50f, 0.60f });

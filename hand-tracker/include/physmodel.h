@@ -301,9 +301,83 @@ struct PhysModel
 		return (show_subdiv) ? sdmeshes : meshes ;
 	}
 
-	float3 getPalmLocation()
+	double DistanceBetweenTwoPts(double x, double y, double a, double b) {
+		return sqrt(pow(x - a, 2) + pow(y - b, 2));
+	}
+
+	float3 GetWristLocation()
 	{
 		return rigidbodies[0].position;
+	}
+	
+	float3 GetPalmLocation()
+	{
+		return rigidbodies[1].position;
+	}
+
+	bool ThumbRaised()
+	{
+		auto thumb1 = rigidbodies[2].position;
+		auto thumb2 = rigidbodies[3].position;
+		auto thumb3 = rigidbodies[4].position;
+
+		double dist = DistanceBetweenTwoPts(thumb1.x, thumb1.y, thumb3.x, thumb3.y);
+		double dista = DistanceBetweenTwoPts(thumb1.x, thumb1.y, thumb2.x, thumb2.y);
+		double distb = DistanceBetweenTwoPts(thumb2.x, thumb2.y, thumb3.x, thumb3.y);
+
+		return ((dista + distb) / dist) < 1.05;
+	}
+
+	bool IndexFingerRaised()
+	{
+		auto index1 = rigidbodies[5].position;
+		auto index2 = rigidbodies[6].position;
+		auto index3 = rigidbodies[7].position;
+
+		double dist = DistanceBetweenTwoPts(index1.x, index1.y, index3.x, index3.y);
+		double dista = DistanceBetweenTwoPts(index1.x, index1.y, index2.x, index2.y);
+		double distb = DistanceBetweenTwoPts(index2.x, index2.y, index3.x, index3.y);
+
+		return ((dista + distb) / dist) < 1.025;
+	}
+
+	bool MiddleFingerRaised()
+	{
+		auto middle1 = rigidbodies[5].position;
+		auto middle2 = rigidbodies[6].position;
+		auto middle3 = rigidbodies[7].position;
+
+		double dist = DistanceBetweenTwoPts(middle1.x, middle1.y, middle3.x, middle3.y);
+		double dista = DistanceBetweenTwoPts(middle1.x, middle1.y, middle2.x, middle2.y);
+		double distb = DistanceBetweenTwoPts(middle2.x, middle2.y, middle3.x, middle3.y);
+
+		return ((dista + distb) / dist) < 1.025;
+	}
+
+	bool ThirdFingerRaised()
+	{
+		auto third1 = rigidbodies[5].position;
+		auto third2 = rigidbodies[6].position;
+		auto third3 = rigidbodies[7].position;
+
+		double dist = DistanceBetweenTwoPts(third1.x, third1.y, third3.x, third3.y);
+		double dista = DistanceBetweenTwoPts(third1.x, third1.y, third2.x, third2.y);
+		double distb = DistanceBetweenTwoPts(third2.x, third2.y, third3.x, third3.y);
+
+		return ((dista + distb) / dist) < 1.025;
+	}
+
+	bool PinkyFingerRaised()
+	{
+		auto pinky1 = rigidbodies[5].position;
+		auto pinky2 = rigidbodies[6].position;
+		auto pinky3 = rigidbodies[7].position;
+
+		double dist = DistanceBetweenTwoPts(pinky1.x, pinky1.y, pinky3.x, pinky3.y);
+		double dista = DistanceBetweenTwoPts(pinky1.x, pinky1.y, pinky2.x, pinky2.y);
+		double distb = DistanceBetweenTwoPts(pinky2.x, pinky2.y, pinky3.x, pinky3.y);
+
+		return ((dista + distb) / dist) < 1.025;
 	}
 
 	void scale(float s)

@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) try
 		{
 			auto allmeshes = Addresses(htk.handmodel.sdmeshes);
 			allmeshes.push_back(&dxmesh);
-			ws.write(boost::asio::buffer(std::to_string(htk.handmodel.getPalmLocation().x) + ", " + std::to_string(htk.handmodel.getPalmLocation().y)));
+			ws.write(boost::asio::buffer(std::to_string(htk.handmodel.GetPalmLocation().x) + ", " + std::to_string(htk.handmodel.GetPalmLocation().y)));
 			render_scene({ { 0, 0, -0.05f }, normalize(float4(1, 0, 0, 0)) }, allmeshes);  
 		}
 		glPopAttrib();
