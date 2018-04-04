@@ -4,6 +4,7 @@
 #include <cctype>
 #include <future>
 #include <sstream>
+#include <signal.h>
 
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>

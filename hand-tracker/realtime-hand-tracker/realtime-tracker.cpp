@@ -1,4 +1,5 @@
 #include <cctype>
+#include <signal.h>
 
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
