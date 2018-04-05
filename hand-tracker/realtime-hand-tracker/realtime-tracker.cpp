@@ -69,27 +69,11 @@ int main(int argc, char *argv[]) try
     websocket::stream<tcp::socket> ws = setup_socket();
     ws.write(boost::asio::buffer(std::string("CAMERA:: CONNECTED")));
 	
-	GLWin glwin("Hand Tracker", 720, 480);
 	dcam.Init("");
 
-	glwin.keyboardfunc = [&](int key, int, int)
-	{
-		switch (std::tolower(key))
-		{
-			case 'q':
-			case 27:
-				dcam.shutdown();
-				ws.close(websocket::close_code::normal);
-				exit(0);
-				break;
-			default:
-				std::cerr << "unused key " << (char)key << std::endl;
-				break;
-		}
-	};
 	htk.load_config( "../config.json");
 
-	while (glwin.WindowUp())
+	while (true)
 	{
 		if (f_shutdown)
         {
@@ -107,51 +91,38 @@ int main(int argc, char *argv[]) try
 			v.texcoord = dimage.cam.projectz(v.position) / float2(dimage.cam.dim());
 
 		htk.update(std::move(dimage));
+		
+		pt::ptree fingers;
 
-		glPushAttrib(GL_ALL_ATTRIB_BITS);
-		glViewport(0, 0, glwin.res.x, glwin.res.y);
-		glClearColor(0.1f + 0.2f * (htk.initializing == 50), 0.1f + 0.1f * (htk.initializing > 0), 0.15f, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		{
-			auto allmeshes = Addresses(htk.handmodel.sdmeshes);
-			allmeshes.push_back(&dxmesh);
-			
-			pt::ptree fingers;
-
-			if (sendMeshDataFlag) {
-				std::vector<Pose> pose = htk.handmodel.GetPose();
-				pt::ptree coord;
-				for (int i = 0; i < pose.size(); i++) {
-					coord.put("x", pose[i].position.x);
-					coord.put("y", pose[i].position.y);
-					coord.put("z", pose[i].position.z);
-					fingers.add_child(boneNames[i], coord);
-				}
-			} else {
-				fingers.put("thumb", std::to_string(htk.handmodel.ThumbRaised()));
-				fingers.put("index", std::to_string(htk.handmodel.IndexFingerRaised()));
-				fingers.put("second", std::to_string(htk.handmodel.MiddleFingerRaised()));
-				fingers.put("third", std::to_string(htk.handmodel.ThirdFingerRaised()));
-				fingers.put("pinky", std::to_string(htk.handmodel.PinkyFingerRaised()));
+		if (sendMeshDataFlag) {
+			std::vector<Pose> pose = htk.handmodel.GetPose();
+			pt::ptree coord;
+			for (int i = 0; i < pose.size(); i++) {
+				coord.put("x", pose[i].position.x);
+				coord.put("y", pose[i].position.y);
+				coord.put("z", pose[i].position.z);
+				fingers.add_child(boneNames[i], coord);
 			}
-			pt::ptree message;
-  			message.put("x", std::to_string(htk.handmodel.GetPalmLocation().x));
-			message.put("y", std::to_string(htk.handmodel.GetPalmLocation().y));
-			message.put("z", std::to_string(htk.handmodel.GetPalmLocation().z));
-			message.add_child("fingers", fingers);
-			message.put("click", false);
-			std::ostringstream buf; 
-			pt::write_json(buf, message, false);
-			std::string json = buf.str();
-
-			std::cout << json << std::endl;
-			ws.write(boost::asio::buffer(json));
-			ws.write(boost::asio::buffer(std::to_string(htk.handmodel.GetPalmLocation().x) + ", " + std::to_string(htk.handmodel.GetPalmLocation().y)));
-			
-			render_scene({ { 0, 0, -0.05f }, normalize(float4(1, 0, 0, 0)) }, allmeshes);  
+		} else {
+			fingers.put("thumb", std::to_string(htk.handmodel.ThumbRaised()));
+			fingers.put("index", std::to_string(htk.handmodel.IndexFingerRaised()));
+			fingers.put("second", std::to_string(htk.handmodel.MiddleFingerRaised()));
+			fingers.put("third", std::to_string(htk.handmodel.ThirdFingerRaised()));
+			fingers.put("pinky", std::to_string(htk.handmodel.PinkyFingerRaised()));
 		}
-		glPopAttrib();
-		glwin.SwapBuffers();
+		pt::ptree message;
+		message.put("x", std::to_string(htk.handmodel.GetPalmLocation().x));
+		message.put("y", std::to_string(htk.handmodel.GetPalmLocation().y));
+		message.put("z", std::to_string(htk.handmodel.GetPalmLocation().z));
+		message.add_child("fingers", fingers);
+		message.put("click", false);
+		std::ostringstream buf; 
+		pt::write_json(buf, message, false);
+		std::string json = buf.str();
+
+		std::cout << json << std::endl;
+		ws.write(boost::asio::buffer(json));
+		ws.write(boost::asio::buffer(std::to_string(htk.handmodel.GetPalmLocation().x) + ", " + std::to_string(htk.handmodel.GetPalmLocation().y)));
 	}
 }
 catch (std::exception e)
