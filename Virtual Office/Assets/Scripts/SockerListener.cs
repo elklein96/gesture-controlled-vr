@@ -8,7 +8,7 @@ namespace GestureStream {
 	public class SockerListener : MonoBehaviour {
 		private WebSocket ws;
 		private GameObject cube;
-		private Coordinate coord;
+		private Message msg;
 
 		void OnGUI() {
 			GUILayout.Label("Started");
@@ -16,24 +16,21 @@ namespace GestureStream {
 
 		void Start () {
 			cube = GameObject.Find("Cube1");
-			coord = new Coordinate(0f, 0f);
+			msg = new Message(0f, 0f);
 
 			ws = new WebSocket("ws://18.220.146.229:3001");
 			ws.OnOpen += (o, e) => {
 				Debug.Log("Connected");
 			};
 			ws.OnMessage += (sender, e) => {
-				foreach (Match match in Regex.Matches(e.Data, "(?<X>\\d+.\\d+),\\s+(?<Y>\\d+.\\d+)")) {
-					// Scale the coordinates by a factor of 4 to see more pronounced movement by the Game Object
-					coord.SetX((float) Convert.ToDouble(match.Groups["X"].Value) * 20);
-					coord.SetY((float) Convert.ToDouble(match.Groups["Y"].Value) * 20);
-				}
+				msg = JsonUtility.FromJson<Message>(e.Data);
+				Debug.Log(msg.x + ", "  + msg.y);
 			};
 			ws.Connect();
 		}
 
 		void Update () {
-			cube.gameObject.GetComponent<Renderer>().transform.position = new Vector3(coord.GetX(), coord.GetY(), 0f);
+			cube.gameObject.GetComponent<Renderer>().transform.position = new Vector3(msg.x, msg.y, 0f);
 		}
 
 		void OnApplicationQuit() {
@@ -42,29 +39,23 @@ namespace GestureStream {
 		}
 	}
 
-	public class Coordinate {
-		private float x;
-		private float y;
-
-		public Coordinate(float x, float y) {
+	public class Message {
+		public Message(float x, float y) {
 			this.x = x;
 			this.y = y;
 		}
 
-		public float GetX() {
-			return this.x;
-		}
+		public float x;
+		public float y;
+		public Fingers fingers;
+		public bool click;
+	}
 
-		public float GetY() {
-			return this.y;
-		}
-
-		public void SetX(float x) {
-			this.x = x;
-		}
-
-		public void SetY(float y) {
-			this.y = y;
-		}
+	public class Fingers {
+		public bool thumb;
+		public bool index;
+		public bool second;
+		public bool third;
+		public bool pinky;
 	}
 }
