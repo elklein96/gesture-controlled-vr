@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) try
 		"pinky_1", "pinky_2", "pinky_3", 
 	};
 
-	bool sendMeshDataFlag = true;
+	bool sendMeshDataFlag = false;
 
 	// First, create a signal handler for graceful shutdowns
 	signal(SIGINT, shutdown_handler);
