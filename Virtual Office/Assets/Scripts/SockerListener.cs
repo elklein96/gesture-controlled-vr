@@ -24,7 +24,13 @@ namespace GestureStream {
 			};
 			ws.OnMessage += (sender, e) => {
 				msg = JsonUtility.FromJson<Message>(e.Data);
-				Debug.Log(msg.x + ", "  + msg.y);
+
+				msg.x = msg.x * 25;
+				msg.y = msg.y * 25;
+
+				double dateReturn = Math.Round((DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds) - 14400000;
+
+				Debug.Log(msg.x + ", "  + msg.y + ", embedded: " + msg.time_embedded + ", unity: " + dateReturn);
 			};
 			ws.Connect();
 		}
@@ -49,6 +55,7 @@ namespace GestureStream {
 		public float y;
 		public Fingers fingers;
 		public bool click;
+		public String time_embedded;
 	}
 
 	public class Fingers {

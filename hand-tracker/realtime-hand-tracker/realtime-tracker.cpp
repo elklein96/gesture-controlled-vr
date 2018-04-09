@@ -1,5 +1,6 @@
 #include <cctype>
 #include <signal.h>
+#include <sys/time.h>
 
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
@@ -49,6 +50,7 @@ int main(int argc, char *argv[]) try
 {
 	RSCam dcam;
 	HandTracker htk;
+	bool run = true;
 
 	std::string const boneNames[] = {
 		"wrist", "palm",
@@ -59,7 +61,7 @@ int main(int argc, char *argv[]) try
 		"pinky_1", "pinky_2", "pinky_3", 
 	};
 
-	bool sendMeshDataFlag = false;
+	bool sendMeshDataFlag = true;
 
 	// First, create a signal handler for graceful shutdowns
 	signal(SIGINT, shutdown_handler);
@@ -68,18 +70,19 @@ int main(int argc, char *argv[]) try
 	// Set up the HTTP Socket Client
     websocket::stream<tcp::socket> ws = setup_socket();
     ws.write(boost::asio::buffer(std::string("CAMERA:: CONNECTED")));
-	
+
 	dcam.Init("");
 
 	htk.load_config( "../config.json");
 
-	while (true)
+	while (run)
 	{
 		if (f_shutdown)
         {
             std::cout << "SHUTTING DOWN GRACEFULLY..." << std::endl;
 			dcam.shutdown();
             ws.close(websocket::close_code::normal);
+			run = false;
 			break;
         }
 
@@ -91,7 +94,7 @@ int main(int argc, char *argv[]) try
 			v.texcoord = dimage.cam.projectz(v.position) / float2(dimage.cam.dim());
 
 		htk.update(std::move(dimage));
-		
+
 		pt::ptree fingers;
 
 		if (sendMeshDataFlag) {
@@ -116,13 +119,18 @@ int main(int argc, char *argv[]) try
 		message.put("z", std::to_string(htk.handmodel.GetPalmLocation().z));
 		message.add_child("fingers", fingers);
 		message.put("click", false);
+
+		struct timeval tp;
+		gettimeofday(&tp, NULL);
+		long int ms = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+		message.put("time_embedded", ms);
+
 		std::ostringstream buf; 
 		pt::write_json(buf, message, false);
 		std::string json = buf.str();
 
 		std::cout << json << std::endl;
 		ws.write(boost::asio::buffer(json));
-		ws.write(boost::asio::buffer(std::to_string(htk.handmodel.GetPalmLocation().x) + ", " + std::to_string(htk.handmodel.GetPalmLocation().y)));
 	}
 }
 catch (std::exception e)
