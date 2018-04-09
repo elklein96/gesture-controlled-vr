@@ -17,7 +17,20 @@ const connections = [];
 wss.on('connection', (ws) => {
   connections.push(ws);
 
-  ws.on('message', notifySubscribers);
+  console.log('Created a new connection');
+
+  ws.on('message', data => {
+    if (process.env.AUDIT_FLAG) {
+      console.log(data, new Date().getTime());
+    }
+    connections.forEach(subscriber => {
+      if (subscriber !== ws && subscriber.readyState === WebSocket.OPEN) {
+        subscriber.send(data);
+      }
+    });
+  });
+
+  ws.on('error', (err) => {});
   ws.onclose = removeSubscriber;
 
   ws.send('connected');
@@ -25,8 +38,21 @@ wss.on('connection', (ws) => {
 
 app.post('/ping', (req, res, next) => {
   notifySubscribers(req.body.payload);
-
   res.send({ data: payload });
+  return next();
+});
+
+app.get('/connections', (req, res, next) => {
+  res.send({ data: `There are currently ${connections.length} subscribers` });
+  return next();
+});
+
+app.delete('/connections', (req, res, next) => {
+  connections.forEach(subscriber => {
+    subscriber.close();
+  });
+
+  res.send({ data: 'Ok' });
   return next();
 });
 
@@ -35,11 +61,11 @@ http.createServer(app).listen(app.get('port'), () => {
 });
 
 function notifySubscribers(data) {
-  connections.forEach((subscriber) => {
+  connections.forEach(subscriber => {
     subscriber.send(data);
   });
 }
 
 function removeSubscriber(socket) {
-  connections.splice(socket);
+  connections.splice(socket, 1);
 }
