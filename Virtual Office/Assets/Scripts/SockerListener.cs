@@ -9,13 +9,14 @@ namespace GestureStream {
 		private WebSocket ws;
 		private GameObject cube;
 		private Message msg;
+		private readonly String GAME_OBJ = "IronMan";
 
 		void OnGUI() {
 			GUILayout.Label("Started");
 		}
 
 		void Start () {
-			cube = GameObject.Find("Cube1");
+			cube = GameObject.Find(GAME_OBJ);
 			msg = new Message(0f, 0f);
 
 			ws = new WebSocket("ws://18.220.146.229:3001");
@@ -36,7 +37,7 @@ namespace GestureStream {
 		}
 
 		void Update () {
-			cube.gameObject.GetComponent<Renderer>().transform.position = new Vector3(msg.x, msg.y, 0f);
+			cube.gameObject.GetComponent<Renderer>().transform.rotation = Quaternion.Euler(cube.gameObject.GetComponent<Renderer>().transform.rotation.x, msg.y * 15, msg.x  * 15);
 		}
 
 		void OnApplicationQuit() {
