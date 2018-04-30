@@ -21,6 +21,8 @@ machine := $(shell sh -c "$(CC) -dumpmachine || echo unknown")
 CXX = clang++
 CXXFLAGS := -std=c++14 -Wno-narrowing -Iinclude
 CXXFLAGS += -fdelayed-template-parsing
+CXXFLAGS += -I/usr/include/python2.7 -I/usr/include/x86_64-linux-gnu/python2.7
+
 ifeq ($(DEBUG),0)
 CXXFLAGS += -Ofast -march=native
 else
@@ -50,7 +52,9 @@ endif
 
 ifeq ($(BUILD_GLFW),1)
 DEPS += /usr/local/lib/libglfw.so 
-endif 
+endif
+
+LDFLAGS += -L/usr/lib/python2.7/config-x86_64-linux-gnu -L/usr/lib -lpython2.7 
 
 all: $(BINARIES) 
 
@@ -66,7 +70,7 @@ obj/%.o: */%.cpp $(INCLUDES) | obj
 	$(CXX) $< $(CXXFLAGS) -c -o $@
 
 bin/%: obj/%.o $(DEPS) | bin
-	$(CXX) -L/usr/local/Cellar/boost/1.65.1/lib -lboost_system-mt $< $(REALSENSE_FLAGS) $(GLFW3_FLAGS) $(LDFLAGS) -o $@
+	$(CXX) -lboost_system $< $(REALSENSE_FLAGS) $(GLFW3_FLAGS) $(LDFLAGS) -o $@
 
 /usr/local/lib/libglfw.so:
 	cd third_party/librealsense/scripts/; \
