@@ -19,3 +19,7 @@ ipch/
 *.opensdf
 *.psess
 *.user
+
+include/libpxc/
+.vscode
+sandbox/

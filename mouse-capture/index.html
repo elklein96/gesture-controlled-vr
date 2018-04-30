@@ -80,12 +80,12 @@
         canvas.addEventListener('mousemove', function (evt) {
             if (dragFlag) {
                 var mousePos = getMousePos(canvas, evt);
-                var message = 'Drag: (' + (mousePos.x / 500) + ', ' + (mousePos.y / 500) + ')';
+                var message = 'Drag: (' + (mousePos.x / 1000) + ', ' + (mousePos.y / 1000) + ')';
                 writeMessage(canvas, message);
 
                 var message = {
-                    x: mousePos.x / 500,
-                    y: mousePos.y / 500,
+                    x: mousePos.x / 1000,
+                    y: mousePos.y / 1000,
                     fingers: {},
                     click: false
                 };
@@ -108,12 +108,12 @@
 
         canvas.addEventListener('click', function(evt) {
             var mousePos = getMousePos(canvas, evt);
-            var message = 'Click: (' + (mousePos.x / 500) + ', ' + (mousePos.y / 500) + ')';
+            var message = 'Click: (' + (mousePos.x / 1000) + ', ' + (mousePos.y / 1000) + ')';
             writeMessage(canvas, message);
 
             var message = {
-                x: mousePos.x / 500,
-                y: mousePos.y / 500,
+                x: mousePos.x / 1000,
+                y: mousePos.y / 1000,
                 fingers: [],
                 click: true
             };

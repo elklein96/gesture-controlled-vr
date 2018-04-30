@@ -114,16 +114,19 @@ int main(int argc, char *argv[]) try
 			fingers.put("pinky", std::to_string(htk.handmodel.PinkyFingerRaised()));
 		}
 		pt::ptree message;
-		message.put("x", std::to_string(htk.handmodel.GetPalmLocation().x));
-		message.put("y", std::to_string(htk.handmodel.GetPalmLocation().y));
-		message.put("z", std::to_string(htk.handmodel.GetPalmLocation().z));
+
+		if (htk.initializing < 10) {
+			message.put("x", std::to_string(htk.handmodel.GetPalmLocation().x));
+			message.put("y", std::to_string(htk.handmodel.GetPalmLocation().y));
+			message.put("z", std::to_string(htk.handmodel.GetPalmLocation().z));
+		} else {
+			message.put("x", std::to_string(0));
+			message.put("y", std::to_string(0));
+			message.put("z", std::to_string(0));
+		}
+
 		message.add_child("fingers", fingers);
 		message.put("click", false);
-
-		struct timeval tp;
-		gettimeofday(&tp, NULL);
-		long int ms = tp.tv_sec * 1000 + tp.tv_usec / 1000;
-		message.put("time_embedded", ms);
 
 		std::ostringstream buf; 
 		pt::write_json(buf, message, false);
