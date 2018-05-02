@@ -104,7 +104,7 @@ public class IRmask : MonoBehaviour {
 		layerMask = ~layerMask;
 
 		Vector3 pos = m_pointer.transform.position;
-		pos.y = 0f;
+		pos.y = pos.y - 2f;
 
 		// Debug.DrawRay(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos) * 1000, Color.red, 10);
 
