@@ -91,7 +91,7 @@
                 };
 
                 fingerToggles.forEach(function(val) {
-                    message.fingers[val.name] = document.querySelector(val.id).checked;
+                    message.fingers[val.name] = document.querySelector(val.id).checked ? 1 : 0;
                 });
 
                 websocket.send(JSON.stringify(message));
