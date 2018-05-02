@@ -40,6 +40,11 @@ public class IRmask : MonoBehaviour {
 		// Start with all fingers raised
 		debounceTimes = new DebounceTimes();
 
+		ironMan = GameObject.Find("iron_man");
+		ironMan.SetActive(false);
+
+		sphere1 = GameObject.Find("m_sphere_1");
+
 		prevHand = new Fingers(1, 1, 1, 1, 1);
 		hand = new Fingers(1, 1, 1, 1, 1);
 	
@@ -58,16 +63,10 @@ public class IRmask : MonoBehaviour {
 				case "m_stream":
 					m_stream = obj;
 					break;
-				case "iron_man":
-					ironMan = obj;
-					break;
-				case "m_sphere_1":
-					sphere1 = obj;
-					break;
 				default: 
 					Debug.Log("No match found for " + obj.name);
 					break;
-			}	
+			}
 		}
 		if (m_mask != null && m_stream != null && m_pointer != null && ironMan != null) {
 			m_mask.transform.localPosition = new Vector3(0, 0, 0.9f);
@@ -75,7 +74,6 @@ public class IRmask : MonoBehaviour {
 			m_mask.transform.localScale = new Vector3((float) width, (float) height, m_mask.transform.localScale.z);
 			m_pointer.transform.localScale = new Vector3(.05f, .1f, m_mask.transform.localScale.z);
 			stream_t = m_stream.GetComponent<SockerListener>();
-			ironMan.GetComponent<Renderer>().enabled = false;
 		} else {
 			Debug.Log("Error in IR_mask check for appropriete GameObjects in scene");
 		}
@@ -88,6 +86,7 @@ public class IRmask : MonoBehaviour {
 		float y = handLoc.y * 2.25f;
 
 		checkIfCollision();
+		parseHandGesture();
 
 		if (toggle) {
 			ironMan.gameObject.transform.rotation =
@@ -119,8 +118,6 @@ public class IRmask : MonoBehaviour {
 		Vector3 pos = m_pointer.transform.position;
 		pos.y = pos.y - 2f;
 
-		// Debug.DrawRay(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos) * 1000, Color.red, 10);
-
 		RaycastHit hitObj;
 		bool hit = Physics.Raycast(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos), out hitObj, 10f, layerMask);
 		cubeIntersection = (hit && hitObj.transform.gameObject.name == "m_cube") ? 1 : 0;
@@ -132,7 +129,7 @@ public class IRmask : MonoBehaviour {
 		if (cubeIsSelected != cubeIsSelectedPrev && hit) {
 			hitObj.transform.gameObject.GetComponent<Renderer>().material.color = (toggle ? Color.white : Color.red);
 			toggle = !toggle;
-			ironMan.gameObject.GetComponent<Renderer>().enabled = toggle;
+			ironMan.SetActive(toggle);
 		}
 
 		if (sphere1Collide == 1) {
