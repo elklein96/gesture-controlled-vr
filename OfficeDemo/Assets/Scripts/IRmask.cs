@@ -14,20 +14,33 @@ public class IRmask : MonoBehaviour {
 	private GameObject sphere1;
 	private GameObject[] ir_mask;
 	
-	private Fingers prev_hand;
+	private Fingers prevHand;
 	private Fingers hand;
 
 	private int cubeIsSelected;
 	private int cubeIsSelectedPrev;
 	bool toggle;
 
-	private double DEBOUCE_DELAY_MS = 1000;
-	private double lastDebounceTime;
+	double DEBOUCE_DELAY_MS_SELECT = 1000;
+	double DEBOUCE_DELAY_MS_FINGER = 50;
+
+	struct DebounceTimes {
+    	public double lastDebounceTimeSelect;
+		public double lastDebounceTimeThumb;
+		public double lastDebounceTimeIndex;
+		public double lastDebounceTimeMiddle;
+		public double lastDebounceTimeThird;
+		public double lastDebounceTimePinky;
+	}
+
+	DebounceTimes debounceTimes;
 
 	// Use this for initialization
 	void Start () {
 		// Start with all fingers raised
-		prev_hand = new Fingers(1, 1, 1, 1, 1);
+		debounceTimes = new DebounceTimes();
+
+		prevHand = new Fingers(1, 1, 1, 1, 1);
 		hand = new Fingers(1, 1, 1, 1, 1);
 	
 		var height = (Camera.main.orthographicSize * 2.0)/10;
@@ -85,15 +98,15 @@ public class IRmask : MonoBehaviour {
 	}
 
 	void parseHandGesture() {
-		Fingers new_hand = stream_t.getFingers();
-		prev_hand = hand;
+		Fingers newHand = stream_t.getFingers();
+		prevHand = hand;
 
-		if (new_hand != null) {
-			hand.thumb = Debounce(new_hand.thumb, prev_hand.thumb);
-			hand.index = Debounce(new_hand.index, prev_hand.index);
-			hand.second = Debounce(new_hand.second, prev_hand.second);
-			hand.third = Debounce(new_hand.third, prev_hand.third);
-			hand.pinky = Debounce(new_hand.pinky, prev_hand.pinky);
+		if (newHand != null) {
+			hand.thumb = Debounce(newHand.thumb, prevHand.thumb, ref debounceTimes.lastDebounceTimeThumb, DEBOUCE_DELAY_MS_FINGER);
+			hand.index = Debounce(newHand.index, prevHand.index, ref debounceTimes.lastDebounceTimeIndex, DEBOUCE_DELAY_MS_FINGER);
+			hand.second = Debounce(newHand.second, prevHand.second, ref debounceTimes.lastDebounceTimeMiddle, DEBOUCE_DELAY_MS_FINGER);
+			hand.third = Debounce(newHand.third, prevHand.third, ref debounceTimes.lastDebounceTimeThird, DEBOUCE_DELAY_MS_FINGER);
+			hand.pinky = Debounce(newHand.pinky, prevHand.pinky, ref debounceTimes.lastDebounceTimePinky, DEBOUCE_DELAY_MS_FINGER);
 		}
 	}
 
@@ -106,7 +119,7 @@ public class IRmask : MonoBehaviour {
 		Vector3 pos = m_pointer.transform.position;
 		pos.y = pos.y - 2f;
 
-		// Debug.DrawRay(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos) * 1000, Color.red, 10);
+		Debug.DrawRay(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos) * 1000, Color.red, 10);
 
 		RaycastHit hitObj;
 		bool hit = Physics.Raycast(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos), out hitObj, 10f, layerMask);
@@ -114,12 +127,14 @@ public class IRmask : MonoBehaviour {
 		sphere1Collide = (hit && hitObj.transform.gameObject.name == "m_sphere_1") ? 1 : 0;
 
 		cubeIsSelectedPrev = cubeIsSelected;
-		cubeIsSelected = Debounce(cubeIntersection, cubeIsSelectedPrev);
+		cubeIsSelected = Debounce(cubeIntersection, cubeIsSelectedPrev, ref debounceTimes.lastDebounceTimeSelect, DEBOUCE_DELAY_MS_SELECT);
 
 		if (cubeIsSelected != cubeIsSelectedPrev && hit) {
 			hitObj.transform.gameObject.GetComponent<Renderer>().material.color = (toggle ? Color.white : Color.red);
 			toggle = !toggle;
 			ironMan.gameObject.GetComponent<Renderer>().enabled = toggle;
+
+			Debug.Log("TOGGLE");
 		}
 
 		if (sphere1Collide == 1) {
@@ -131,14 +146,14 @@ public class IRmask : MonoBehaviour {
 	}
 
 	// Debounces a stream of integer values
-	int Debounce(int new_val, int prev_val) {
+	int Debounce(int newVal, int prevVal, ref double lastDebounceTime, double maxDelay) {
 		double now = (DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds;
-		if (new_val == prev_val) {
+		if (newVal == prevVal) {
 			lastDebounceTime = now;
 		}
-		if ((now - lastDebounceTime) > DEBOUCE_DELAY_MS) {
-			return new_val;
+		if ((now - lastDebounceTime) > maxDelay) {
+			return newVal;
 		}
-		return prev_val;
+		return prevVal;
 	}
 }
