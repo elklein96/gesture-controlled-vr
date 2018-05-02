@@ -119,7 +119,7 @@ public class IRmask : MonoBehaviour {
 		Vector3 pos = m_pointer.transform.position;
 		pos.y = pos.y - 2f;
 
-		Debug.DrawRay(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos) * 1000, Color.red, 10);
+		// Debug.DrawRay(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos) * 1000, Color.red, 10);
 
 		RaycastHit hitObj;
 		bool hit = Physics.Raycast(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos), out hitObj, 10f, layerMask);
@@ -133,8 +133,6 @@ public class IRmask : MonoBehaviour {
 			hitObj.transform.gameObject.GetComponent<Renderer>().material.color = (toggle ? Color.white : Color.red);
 			toggle = !toggle;
 			ironMan.gameObject.GetComponent<Renderer>().enabled = toggle;
-
-			Debug.Log("TOGGLE");
 		}
 
 		if (sphere1Collide == 1) {
