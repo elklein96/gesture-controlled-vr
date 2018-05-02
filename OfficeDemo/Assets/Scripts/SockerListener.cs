@@ -16,6 +16,10 @@ namespace GestureStream {
 			return m_packet.fingers;
 		}
 
+		public bool getClick() {
+			return m_packet.click;
+		}
+
 		void OnGUI() {
 			GUILayout.Label("Started");
 		}

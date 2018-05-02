@@ -8,8 +8,9 @@ namespace GestureStream {
 	public class SockerListener : MonoBehaviour {
 		private WebSocket ws;
 		private GameObject cube;
+		private Message tmp;
 		private Message msg;
-		private readonly String GAME_OBJ = "IronMan";
+		private readonly String GAME_OBJ = "IronManDOT";
 
 		void OnGUI() {
 			GUILayout.Label("Started");
@@ -17,27 +18,24 @@ namespace GestureStream {
 
 		void Start () {
 			cube = GameObject.Find(GAME_OBJ);
-			msg = new Message(0f, 0f);
+			msg = new Message(1f, 1f);
 
 			ws = new WebSocket("ws://18.220.146.229:3001");
 			ws.OnOpen += (o, e) => {
 				Debug.Log("Connected");
 			};
 			ws.OnMessage += (sender, e) => {
-				msg = JsonUtility.FromJson<Message>(e.Data);
-
-				msg.x = msg.x * 25;
-				msg.y = msg.y * 25;
-
-				double dateReturn = Math.Round((DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds) - 14400000;
-
-				Debug.Log(msg.x + ", "  + msg.y + ", embedded: " + msg.time_embedded + ", unity: " + dateReturn);
+				tmp = JsonUtility.FromJson<Message>(e.Data);
+				if (tmp.x != 0 && tmp.y != 0) {
+					msg.x = tmp.x * 1000;
+					msg.y = tmp.y * -500;
+				}
 			};
 			ws.Connect();
 		}
 
 		void Update () {
-			cube.gameObject.GetComponent<Renderer>().transform.rotation = Quaternion.Euler(cube.gameObject.GetComponent<Renderer>().transform.rotation.x, msg.y * 15, msg.x  * 15);
+			cube.gameObject.transform.rotation = Quaternion.Euler(msg.y, msg.x, cube.gameObject.GetComponent<Renderer>().transform.rotation.z);
 		}
 
 		void OnApplicationQuit() {
