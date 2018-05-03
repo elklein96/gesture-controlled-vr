@@ -135,12 +135,10 @@ public class IRmask : MonoBehaviour {
 			interaction = !interaction;
 		}
 
-		if (sphereIntersection == 1) {
-			if (hand.Gesture().Equals("11111")) {
-				Vector3 force = new Vector3(hitObj.transform.gameObject.transform.position.x + UnityEngine.Random.Range(-10, 10), hitObj.transform.gameObject.transform.position.y + UnityEngine.Random.Range(20, 50), hitObj.transform.gameObject.transform.position.z + UnityEngine.Random.Range(-10, 10));
-				hitObj.transform.gameObject.GetComponent<Rigidbody>().AddForce(force);
-				hitObj.transform.gameObject.GetComponent<Renderer>().material.color = interaction ? Color.blue : Color.red;
-			}
+		if (sphereIntersection == 1 && hand.Gesture().Equals("11111")) {
+			Vector3 force = new Vector3(hitObj.transform.gameObject.transform.position.x + UnityEngine.Random.Range(-10, 10), hitObj.transform.gameObject.transform.position.y + UnityEngine.Random.Range(20, 50), hitObj.transform.gameObject.transform.position.z + UnityEngine.Random.Range(-10, 10));
+			hitObj.transform.gameObject.GetComponent<Rigidbody>().AddForce(force);
+			hitObj.transform.gameObject.GetComponent<Renderer>().material.color = interaction ? Color.blue : Color.red;
 		}
 		//Debug.DrawRay(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos), Color.red, 1000);
 	}
