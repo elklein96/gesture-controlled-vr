@@ -126,7 +126,7 @@ public class IRmask : MonoBehaviour {
 
 		bool hit = Physics.Raycast(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos), out hitObj, 10f, layerMask);
 		int cubeIntersection = (hit && hitObj.transform.gameObject.name == "m_cube") ? 1 : 0;
-		int sphereIntersection = (hit && hitObj.transform.gameObject.name == "m_sphere") ? 1 : 0;
+		int sphereIntersection = (hit && hitObj.transform.gameObject.tag == "m_sphere") ? 1 : 0;
 
 		cubeIsSelectedPrev = cubeIsSelected;
 		cubeIsSelected = Debounce(cubeIntersection, cubeIsSelectedPrev, ref debounceTimes.lastDebounceTimeSelect, DEBOUCE_DELAY_MS_SELECT);
