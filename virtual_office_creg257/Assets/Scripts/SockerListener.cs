@@ -8,40 +8,42 @@ using WebSocketSharp;
 namespace GestureStream {
 	public class SockerListener : MonoBehaviour {
 		private WebSocket ws;
-		private static Message msg;
+		private static Message m_packet;
 	//{"x":"0.076467","y":"0.068478","z":"0.525632","fingers":{"thumb":"1","index":"1","second":"1","third":"1","pinky":"1"},"click":"false"}
 	
 	public Message getMessage(){
-		return msg;
+		return m_packet;
 	}
 
 		//AWS ID: 18.220.146.229:3000
 		void OnGUI() {
 			GUILayout.Label("Started");
 		}
+		
+		public Fingers getFingers() {
+			return m_packet.fingers;
+		}
+
+		public Vector3 getPoint(){
+			return new Vector3(m_packet.x, m_packet.y, 0);
+		}
 
 		void Start () {
-			msg = new Message(0f, 0f);
-			ws = new WebSocket("ws://18.220.146.229:3001");//"18.220.146.229:3001" "ws://localhost:3001" :3000 is REST API
+			m_packet = new Message(0f, 0f);
+			m_packet.fingers = new Fingers(1, 1, 1, 1, 1);
+
+			ws = new WebSocket("ws://18.220.146.229:3001");
 			ws.OnOpen += (o, e) => {
 				Debug.Log("Connected");
 			};
 			ws.OnMessage += (sender, e) => {
-				msg = JsonUtility.FromJson<Message>(e.Data);
-
-				//msg.x = msg.x *25;
-				//msg.y = msg.y * 25;
-
-				double dateReturn = Math.Round((DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds) - 14400000;
-
-				Debug.Log(msg.x + ", "  + msg.y + ", embedded: " + msg.time_embedded + ", unity: " + dateReturn);
+				m_packet = JsonUtility.FromJson<Message>(e.Data);
 			};
 			ws.Connect();
 		}
 
 		void Update () {
-			//this.transform.position = new Vector3(coord.getX()*8, coord.getY()*8, 0f);
-			//cube.gameObject.GetComponent<Renderer>().enabled = showCube;
+			
 		}
 
 		void OnApplicationQuit() {

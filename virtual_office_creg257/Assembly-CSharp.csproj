@@ -230,6 +230,7 @@
      <Compile Include="Assets\PolyToolkit\Scripts\PtAssetObject.cs" />
      <Compile Include="Assets\Scripts\Chair.cs" />
      <Compile Include="Assets\Scripts\Display.cs" />
+     <Compile Include="Assets\Scripts\Fingers.cs" />
      <Compile Include="Assets\Scripts\Hand_Controller.cs" />
      <Compile Include="Assets\Scripts\HUD_Controller.cs" />
      <Compile Include="Assets\Scripts\InsideOut.cs" />
