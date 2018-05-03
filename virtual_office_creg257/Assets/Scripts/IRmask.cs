@@ -79,6 +79,7 @@ public class IRmask : MonoBehaviour {
 			//m_hand.SendMessage("printStatus");
 			stream_t = m_stream.GetComponent<SockerListener>();
 			Debug.Log("Everything set");
+			resetCollisionDemo() ;
 		}
 		else{
 			Debug.Log("Error in IRmask check for appropriete GameObjects in scene");
@@ -137,9 +138,9 @@ public class IRmask : MonoBehaviour {
 				case "m_sphere":
 					Debug.Log("Sphere Hit!");
 					if(hand.Gesture().Equals("11111")){
-						Vector3 force = new Vector3(hitObj.transform.gameObject.transform.position.x + UnityEngine.Random.Range(-10, 10), hitObj.transform.gameObject.transform.position.y + UnityEngine.Random.Range(20, 50), hitObj.transform.gameObject.transform.position.z + UnityEngine.Random.Range(-10, 10));
+						Vector3 force = new Vector3(hitObj.transform.gameObject.transform.position.x + 20*UnityEngine.Random.Range(-1, 1), hitObj.transform.gameObject.transform.position.y + 20*UnityEngine.Random.Range(0,3), hitObj.transform.gameObject.transform.position.z + 20*UnityEngine.Random.Range(-1, 1));
 						hitObj.transform.gameObject.GetComponent<Rigidbody>().AddForce(force);
-						hitObj.transform.gameObject.GetComponent<Renderer>().material.color = interaction ? Color.blue : Color.red;
+						hitObj.transform.gameObject.GetComponent<Renderer>().material.color = UnityEngine.Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
 					}
 				break;
 			}
@@ -175,9 +176,13 @@ public class IRmask : MonoBehaviour {
 
 	void resetCollisionDemo() {
 		Debug.Log("Resetting Demo");
+		int count = 1;
 		GameObject[] spheres = GameObject.FindGameObjectsWithTag("m_sphere");
 		foreach(GameObject g in spheres){
-			g.transform.position = new Vector3(2,2,10);
+			g.transform.position = new Vector3((count % 2)*4, count + 20 ,(count % 3)*4);//line-em up
+			g.transform.localScale = new Vector3((count % 2) + .5f, (count % 2) + .5f, (count % 2) + .5f);
+			g.transform.gameObject.GetComponent<Renderer>().material.color = Color.white;
+			count ++;
 		}
 	}
 
