@@ -384,13 +384,13 @@
  <HintPath>/Applications/Unity/Unity.app/Contents/PlaybackEngines/MacStandaloneSupport/UnityEditor.OSXStandalone.Extensions.dll</HintPath>
  </Reference>
  <Reference Include="Newtonsoft.Json">
- <HintPath>/Users/christopherszafranski/CODE_LOCAL/UNITY/Virtual_Office_fork/BoundlessVR/virtual_office_creg257/Assets/PolyToolkit/ThirdParty/Json-NET-for-Unity/Assemblies/Standalone/Newtonsoft.Json.dll</HintPath>
+ <HintPath>/Users/christopherszafranski/CODE_LOCAL/UNITY/BOUNDLESS_MASTER/gesture-controlled-vr/virtual_office_creg257/Assets/PolyToolkit/ThirdParty/Json-NET-for-Unity/Assemblies/Standalone/Newtonsoft.Json.dll</HintPath>
  </Reference>
  <Reference Include="websocket-sharp">
- <HintPath>/Users/christopherszafranski/CODE_LOCAL/UNITY/Virtual_Office_fork/BoundlessVR/virtual_office_creg257/Assets/Plugins/websocket-sharp.dll</HintPath>
+ <HintPath>/Users/christopherszafranski/CODE_LOCAL/UNITY/BOUNDLESS_MASTER/gesture-controlled-vr/virtual_office_creg257/Assets/Plugins/websocket-sharp.dll</HintPath>
  </Reference>
  <Reference Include="Google.ProtocolBuffers">
- <HintPath>/Users/christopherszafranski/CODE_LOCAL/UNITY/Virtual_Office_fork/BoundlessVR/virtual_office_creg257/Assets/GoogleVR/Plugins/Google.ProtocolBuffers.dll</HintPath>
+ <HintPath>/Users/christopherszafranski/CODE_LOCAL/UNITY/BOUNDLESS_MASTER/gesture-controlled-vr/virtual_office_creg257/Assets/GoogleVR/Plugins/Google.ProtocolBuffers.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Advertisements">
  <HintPath>/Users/christopherszafranski/Library/Unity/cache/packages/packages.unity.com/com.unity.ads@2.0.3/UnityEngine.Advertisements.dll</HintPath>

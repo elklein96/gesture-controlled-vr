@@ -24,24 +24,17 @@ public class Hand_Controller : MonoBehaviour {
 
 		while(!done)
 		{
-<<<<<<< HEAD
-			// We just keep loading until obj becomes null
-=======
->>>>>>> 335dbeb8e82d255080db319eaedd186bbedaad19
+
 			obj = this.transform.Find("hand_"+counter);
 			if(obj == null){
 				done = true; // Let's stop this now.
 			}   
 			else{
-<<<<<<< HEAD
-				obj.GetComponent<Renderer>().enabled = false;
-				hands_Obj.Add(obj.gameObject);
-				Debug.Log("Found "+ obj.name);
-=======
+
 				obj.gameObject.GetComponent<Renderer>().enabled = false;
 				hands_Obj.Add(obj.gameObject);
 				Debug.Log("Found "+ obj.gameObject.name);
->>>>>>> 335dbeb8e82d255080db319eaedd186bbedaad19
+
 			}
 			++counter;
 		}
