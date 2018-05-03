@@ -124,7 +124,7 @@ public class IRmask : MonoBehaviour {
 		Vector3 pos = m_pointer.transform.position;
 		pos.y = pos.y - 2f;
 
-		bool hit = Physics.Raycast(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos), out hitObj, 10f, layerMask);
+		bool hit = Physics.Raycast(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos), out hitObj, 100f, layerMask);
 		int cubeIntersection = (hit && hitObj.transform.gameObject.name == "m_cube") ? 1 : 0;
 		int sphereIntersection = (hit && hitObj.transform.gameObject.tag == "m_sphere") ? 1 : 0;
 
@@ -140,7 +140,7 @@ public class IRmask : MonoBehaviour {
 			hitObj.transform.gameObject.GetComponent<Rigidbody>().AddForce(force);
 			hitObj.transform.gameObject.GetComponent<Renderer>().material.color = interaction ? Color.blue : Color.red;
 		}
-		//Debug.DrawRay(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos), Color.red, 1000);
+		Debug.DrawRay(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos), Color.red, 1000);
 	}
 
 	void gestureEvents() {
