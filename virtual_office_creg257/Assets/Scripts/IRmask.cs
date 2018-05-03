@@ -13,9 +13,6 @@ public class IRmask : MonoBehaviour {
 	private GameObject m_mask; //This will be a quad which will follow the center of the camera
 
 	private GameObject ironMan;
-	private GameObject sphere1;
-	private GameObject sphere2;
-	private GameObject sphere3;
 	private GameObject toggleCube;
 	
 	private Fingers hand;
@@ -23,7 +20,8 @@ public class IRmask : MonoBehaviour {
 
 	private int cubeIsSelected;
 	private int cubeIsSelectedPrev;
-	bool toggle;
+	bool show_ironman;
+	bool interaction;
 
 	double DEBOUCE_DELAY_MS_SELECT = 1000;
 	double DEBOUCE_DELAY_MS_FINGER = 150;
@@ -41,17 +39,14 @@ public class IRmask : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		
+		interaction = false;
 		var height = (Camera.main.orthographicSize * 2.0)/10;
      	var width = (height * Screen.width / Screen.height);
 		debounceTimes = new DebounceTimes();
-
+		show_ironman = false;
 		toggleCube = GameObject.Find("m_cube");
-		sphere1 = GameObject.Find("m_sphere_1");
-		sphere2 = GameObject.Find("m_sphere_2");
-		sphere3 = GameObject.Find("m_sphere_3");
 		ironMan = GameObject.Find("iron_man");
-		ironMan.SetActive(false);
+		ironMan.SetActive(show_ironman);
 		
 		prevHand = new Fingers(1, 1, 1, 1, 1);
 		hand = new Fingers(1, 1, 1, 1, 1);
@@ -99,11 +94,9 @@ public class IRmask : MonoBehaviour {
 			parseHandGesture();
 			collisionEvents();
 			gestureEvents();
+			updateIronManDemo(x,y);
 
-			if (toggle) {
-				ironMan.gameObject.transform.rotation =
-					Quaternion.Euler(y * 225, (x * 600) + 180, ironMan.gameObject.GetComponent<Renderer>().transform.rotation.z);
-			} else {
+			if (!interaction) {
 				m_pointer.transform.localPosition = new Vector3(x, y, 0);
 				m_hand.SendMessage("update_hand",hand); 
 			}
@@ -123,8 +116,6 @@ public class IRmask : MonoBehaviour {
 		}
 	}
 	
-
-
 	void collisionEvents() {
 		RaycastHit hitObj;
 		int layerMask = 1 << 8;
@@ -133,41 +124,34 @@ public class IRmask : MonoBehaviour {
 		Vector3 pos = m_pointer.transform.position;
 		pos.y = pos.y - 2f;
 
-		bool hit = Physics.Raycast(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos), out hitObj, 10f, layerMask);
+		if (Physics.Raycast(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos), out hitObj, 30f, layerMask)){
 		Debug.DrawRay(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos), Color.red, 1000);
-		int cubeIntersection = (hit && hitObj.transform.gameObject.name == "m_cube") ? 1 : 0;
-		int sphere1Collide = (hit && hitObj.transform.gameObject.name == "m_sphere_1") ? 1 : 0;
-		int sphere2Collide = (hit && hitObj.transform.gameObject.name == "m_sphere_2") ? 1 : 0;
-		int sphere3Collide = (hit && hitObj.transform.gameObject.name == "m_sphere_3") ? 1 : 0;
+			switch(hitObj.transform.gameObject.tag){
+				case "m_cube":
+					Debug.Log("Cube Hit!");
+					if(hand.Gesture().Equals("01000")){
+						Debug.Log("Cube toggled!");
+						interaction = !interaction;
+					}
+				break;
+				case "m_sphere":
+					Debug.Log("Sphere Hit!");
+					if(hand.Gesture().Equals("11111")){
+						Vector3 force = new Vector3(hitObj.transform.gameObject.transform.position.x + UnityEngine.Random.Range(-10, 10), hitObj.transform.gameObject.transform.position.y + UnityEngine.Random.Range(20, 50), hitObj.transform.gameObject.transform.position.z + UnityEngine.Random.Range(-10, 10));
+						hitObj.transform.gameObject.GetComponent<Rigidbody>().AddForce(force);
+						hitObj.transform.gameObject.GetComponent<Renderer>().material.color = interaction ? Color.blue : Color.red;
+					}
+				break;
+			}
 
-		cubeIsSelectedPrev = cubeIsSelected;
-		cubeIsSelected = Debounce(cubeIntersection, cubeIsSelectedPrev, ref debounceTimes.lastDebounceTimeSelect, DEBOUCE_DELAY_MS_SELECT);
-
-		if (cubeIsSelected != cubeIsSelectedPrev && !hand.Gesture().Equals("00000")) {
-			updateIronManDemo();
 		}
-
-		if (sphere1Collide == 1) {
-			Vector3 force = new Vector3(0, 0, sphere1.transform.position.z - UnityEngine.Random.Range(4, 8));
-			sphere1.GetComponent<Rigidbody>().AddForce(force);
-		}
-
-		if (sphere2Collide == 1) {
-			Vector3 force = new Vector3(0, 0, sphere2.transform.position.z - UnityEngine.Random.Range(-2, 2));
-			sphere2.GetComponent<Rigidbody>().AddForce(force);
-		}
-
-		if (sphere3Collide == 1) {
-			Vector3 force = new Vector3(0, 0, sphere3.transform.position.z - UnityEngine.Random.Range(-6, -2));
-			sphere3.GetComponent<Rigidbody>().AddForce(force);
-		}
+		//Debug.DrawRay(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos), Color.red, 1000);
+		
 	}
 
 	void gestureEvents() {
 		if (hand.Gesture().Equals("00000")) {
-			if (toggle) {
-				updateIronManDemo();
-			}
+			interaction = false;
 			resetCollisionDemo();
 		}
 
@@ -176,16 +160,25 @@ public class IRmask : MonoBehaviour {
 		}
 	}
 
-	void updateIronManDemo() {
-		toggleCube.GetComponent<Renderer>().material.color = (toggle ? Color.white : Color.red);
-		toggle = !toggle;
-		ironMan.SetActive(toggle);
+	void updateIronManDemo(float x, float y) {
+		if(interaction){
+			toggleCube.GetComponent<Renderer>().material.color = Color.red;
+			ironMan.SetActive(interaction);
+			ironMan.gameObject.transform.rotation =
+					Quaternion.Euler(y * 225, (x * 600) + 180, ironMan.gameObject.GetComponent<Renderer>().transform.rotation.z);
+		}else{
+			toggleCube.GetComponent<Renderer>().material.color = Color.white;
+			ironMan.SetActive(interaction);
+		}
+		
 	}
 
 	void resetCollisionDemo() {
-		sphere1.transform.position = new Vector3(5f, 2f, -1.5f);
-		sphere2.transform.position = new Vector3(5f, 2f, 0f);
-		sphere3.transform.position = new Vector3(5f, 2f, 1.5f);
+		Debug.Log("Resetting Demo");
+		GameObject[] spheres = GameObject.FindGameObjectsWithTag("m_sphere");
+		foreach(GameObject g in spheres){
+			g.transform.position = new Vector3(2,2,10);
+		}
 	}
 
 	void placeScreen() {

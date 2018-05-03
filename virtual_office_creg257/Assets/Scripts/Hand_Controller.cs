@@ -57,7 +57,7 @@ public class Hand_Controller : MonoBehaviour {
 	public void update_hand(Fingers fin){
 		//Mesh m = hands_Obj[5].GetComponent<MeshFilter>().sharedMesh;
 		string gesture = fin.Gesture();
-		Debug.Log("Gesture is: "+ gesture);
+//		Debug.Log("Gesture is: "+ gesture);
 		switch(gesture){
 			case "00000"://empty fist
 				  	hands_Obj[0].GetComponent<Renderer>().enabled = true;

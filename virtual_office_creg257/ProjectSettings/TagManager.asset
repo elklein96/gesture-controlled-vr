@@ -9,6 +9,8 @@ TagManager:
   - m_pointer
   - m_hand
   - iron_man
+  - m_sphere
+  - m_cube
   layers:
   - Default
   - TransparentFX
