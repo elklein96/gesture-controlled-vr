@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,24 +17,22 @@ public class Hand_Controller : MonoBehaviour {
 		mask_pointer = GameObject.Find("m_pointer");
 		this.transform.position = mask_pointer.transform.position;
 		default_mesh = this.GetComponentInChildren<MeshFilter>().sharedMesh;
-		GameObject obj = null;
+		Transform obj = null;
      	int counter = 0;
      	bool done = false;
 		hands = Resources.Load("hand_pos") as GameObject;
 
 		while(!done)
 		{
-			// We just keep loading until obj becomes null
-			obj = this.transform.Find("hand_"+counter).gameObject;
+			obj = this.transform.Find("hand_"+counter);
 			if(obj == null){
 				done = true; // Let's stop this now.
 			}   
 			else{
-				obj.GetComponent<Renderer>().enabled = false;
-				hands_Obj.Add(obj);
-				Debug.Log("Found "+ obj.name);
+				obj.gameObject.GetComponent<Renderer>().enabled = false;
+				hands_Obj.Add(obj.gameObject);
+				Debug.Log("Found "+ obj.gameObject.name);
 			}
-				
 			++counter;
 		}
 	}
