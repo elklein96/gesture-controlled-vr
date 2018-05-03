@@ -125,29 +125,25 @@ public class IRmask : MonoBehaviour {
 		Vector3 pos = m_pointer.transform.position;
 		pos.y = pos.y - 2f;
 
-		if (Physics.Raycast(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos), out hitObj, 30f, layerMask)){
-		Debug.DrawRay(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos), Color.red, 1000);
-			switch(hitObj.transform.gameObject.tag){
-				case "m_cube":
-					Debug.Log("Cube Hit!");
-					if(hand.Gesture().Equals("01000")){
-						Debug.Log("Cube toggled!");
-						interaction = !interaction;
-					}
-				break;
-				case "m_sphere":
-					Debug.Log("Sphere Hit!");
-					if(hand.Gesture().Equals("11111")){
-						Vector3 force = new Vector3(hitObj.transform.gameObject.transform.position.x + 20*UnityEngine.Random.Range(-1, 1), hitObj.transform.gameObject.transform.position.y + 20*UnityEngine.Random.Range(0,3), hitObj.transform.gameObject.transform.position.z + 20*UnityEngine.Random.Range(-1, 1));
-						hitObj.transform.gameObject.GetComponent<Rigidbody>().AddForce(force);
-						hitObj.transform.gameObject.GetComponent<Renderer>().material.color = UnityEngine.Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
-					}
-				break;
-			}
 
+		bool hit = Physics.Raycast(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos), out hitObj, 100f, layerMask);
+		int cubeIntersection = (hit && hitObj.transform.gameObject.name == "m_cube") ? 1 : 0;
+		int sphereIntersection = (hit && hitObj.transform.gameObject.tag == "m_sphere") ? 1 : 0;
+
+
+		cubeIsSelectedPrev = cubeIsSelected;
+		cubeIsSelected = Debounce(cubeIntersection, cubeIsSelectedPrev, ref debounceTimes.lastDebounceTimeSelect, DEBOUCE_DELAY_MS_SELECT);
+
+		if (cubeIsSelected != cubeIsSelectedPrev && cubeIsSelected == 1 && !hand.Gesture().Equals("00000")) {
+			interaction = !interaction;
 		}
-		//Debug.DrawRay(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos), Color.red, 1000);
-		
+
+		if (sphereIntersection == 1 && hand.Gesture().Equals("11111")) {
+			Vector3 force = new Vector3(hitObj.transform.gameObject.transform.position.x + UnityEngine.Random.Range(-10, 10), hitObj.transform.gameObject.transform.position.y + UnityEngine.Random.Range(20, 50), hitObj.transform.gameObject.transform.position.z + UnityEngine.Random.Range(-10, 10));
+			hitObj.transform.gameObject.GetComponent<Rigidbody>().AddForce(force);
+			hitObj.transform.gameObject.GetComponent<Renderer>().material.color = interaction ? Color.blue : Color.red;
+		}
+		Debug.DrawRay(m_pointer.transform.position, Vector3.Project(m_pointer.transform.forward, pos), Color.red, 1000);
 	}
 
 	void gestureEvents() {
